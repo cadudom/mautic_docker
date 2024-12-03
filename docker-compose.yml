@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+    elozdb:
+        image: mariadb:10.6
+        container_name: elozdb
+        volumes:
+            - crm_data_mysql:/var/lib/mysql
+        ports:
+            - 3306:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=tempPass123
+        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+        networks:
+            - eloznet
+        restart: always
+
+    mautic:
+        build:
+            context: image
+            dockerfile: Dockerfile
+        container_name: elozcrm
+        ports:
+            - 8080:80
+        environment:
+            - MAUTIC_DB_HOST=elozdb
+            - MYSQL_PORT_3306_TCP=3306
+            - MAUTIC_DB_USER=root
+            - MAUTIC_DB_PASSWORD=tempPass123
+            - MAUTIC_DB_NAME=eloz
+        networks:
+            - eloznet
+volumes:
+    crm_data_mysql:
+        driver: local
+
+networks:
+    eloznet:
+        external: true
